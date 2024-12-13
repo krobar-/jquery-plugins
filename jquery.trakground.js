@@ -1,5 +1,5 @@
 /*
-Background with video and or Parallax and image replacement
+Background with video and or Parallax and image replacement 
 Based on jquery.bgvideo.js by Siebe Van Dijck and backgroundVideo.js by Sam Linnett
 Note: requires Modernizr (https://modernizr.com/)
 */
@@ -7,6 +7,41 @@ Note: requires Modernizr (https://modernizr.com/)
 ;(function ( $, window, document, undefined ) {
 	"use strict";
 
+	/*!
+	@var defaults (object)
+	@abstract
+	    Default configuration options for the plugin.
+	@details
+	    Contains all settings for video, fallback image, parallax effects, and other features.
+	@textblock
+	    $element                = The main element to apply the plugin.
+	    $outerWrap              = The outer container, defaulting to the window.
+	    $window                 = The browser window.
+	    minimumVideoWidth       = Minimum width for the video to display.
+	    preventContextMenu      = Prevent right-click context menu on video (boolean).
+	    parallax                = Enable or disable parallax effects (boolean).
+	    parallaxOptions         = Configuration for the parallax effect.
+	    pauseVideoOnViewLoss    = Pause video when out of viewport (boolean).
+	    mp4Src                  = Source URL for the MP4 video.
+	    webmSrc                 = Source URL for the WebM video.
+	    capSrc                  = Source URL for WebVTT captions.
+	    imgSrc                  = Source URL for fallback image.
+	    videoOptions            = HTML attributes for the video element.
+	    mobileVideo             = Minimum viewport width for video display.
+	    setWrapWidth            = Force specific wrapper width (boolean).
+	    setWrapHeight           = Force specific wrapper height (boolean).
+	    bkgdZindex              = Z-index of the background container.
+	    bkgdPositioning         = CSS positioning for the background.
+	    bkgdYPos                = Vertical position of the background.
+	    bkgdCentered            = Center the background image or video (boolean).
+	    useTrans3D              = Enable or disable 3D transformations (boolean).
+	    wrapID                  = ID for the wrapper element.
+	    bkgdID                  = ID for the background element.
+	    useVideo                = Use video as the background (boolean).
+	    toggleControl           = ID of the element to toggle video playback.
+	    debug                   = Enable debug logging (boolean).
+	@/textblock
+	*/
 	var defaults = {
 		// from backgroundVideo
 		$element 				: null,
@@ -43,6 +78,15 @@ Note: requires Modernizr (https://modernizr.com/)
 		debug 					: false
 	};
 
+	/*!
+	@class TrkGnd
+	@abstract
+	    Main class for managing background video and parallax effects.
+	@param element (object)
+	    The target DOM element.
+	@param options (object)
+	    User-provided configuration options, merged with defaults.
+	*/
 	function TrkGnd(element, options)
 	{
 		var self = this;
@@ -83,7 +127,7 @@ Note: requires Modernizr (https://modernizr.com/)
 				.load(function() {
 					if (self.options.debug) console.log('loading image into memory');
 					self.options.originalWidth = this.width;   // Note: $(this).width() will not
-					self.options.originalHeight = this.height; // work for in memory images.
+					self.options.originalHeight = this.height; // work for in-memory images.
 					
 					self.options.$bkgdTrans.css({ 'display' : 'block' });
 					if(self.initialized) return;
@@ -92,21 +136,23 @@ Note: requires Modernizr (https://modernizr.com/)
 				});
 		}
 		
+		/*!
+		@function vidReadyCallback
+		@abstract
+		    Callback for handling video readiness.
+		*/
 		function vidReadyCallback() {
 			clearTimeout(self.options.vidTimeoutID);
 			self.options.originalWidth = self.options.$bkgdVideo[0].videoWidth;
 			self.options.originalHeight = self.options.$bkgdVideo[0].videoHeight;
 			if ( Cookies.get('trakground') ) {
 				$('#' + self.options.toggleControl).addClass('no-video');
-				//self.options.$bkgdVideo.css({ 'display' : 'none' });
 				self.options.$bkgdVideo.get(0).pause();
 				self.options.$bkgdImage.css({ 'display' : 'block' });
 			} else {
 				self.options.$bkgdTrans.css({ 'display' : 'block' });
 			}
 			
-
-			//$('.vb-fallback-image').css({'display' : 'block'});
 			if(self.initialized) return;
 			self.init();
 			setTimeout(function(){
@@ -117,6 +163,11 @@ Note: requires Modernizr (https://modernizr.com/)
 
 	TrkGnd.prototype = {
 
+		/*!
+		@function init
+		@abstract
+		    Initialize the plugin.
+		*/
 		init: function()
 		{
 			var self = this;
@@ -146,6 +197,11 @@ Note: requires Modernizr (https://modernizr.com/)
 			if (this.options.debug) console.log('initialized');
 		},
 
+		/*!
+		@function update
+		@abstract
+		    Update object properties and set up event listeners.
+		*/
 		update: function()
 		{
 			var self = this,
@@ -176,6 +232,11 @@ Note: requires Modernizr (https://modernizr.com/)
 			requestTick();
 		},
 
+		/*!
+		@function scaleObject
+		@abstract
+		    Scale background elements to fit the container.
+		*/
 		scaleObject: function()
 		{
 			var self = this,
@@ -205,6 +266,11 @@ Note: requires Modernizr (https://modernizr.com/)
 			this.positionObject();
 		},
 
+		/*!
+		@function positionObject
+		@abstract
+		    Position background elements based on scroll and viewport.
+		*/
 		positionObject: function()
 		{
 			var self = this,
@@ -230,7 +296,6 @@ Note: requires Modernizr (https://modernizr.com/)
 					yPos = Math.round(yPos + ((scrollPos - this.options.elYpos) * this.options.parallaxOptions.effect));
 					if (this.options.debug) console.log('yPos:' + yPos + ' calc yPos:' + this.options.yPos + ' orig top:' + this.options.elYpos);
 				} else {
-					//yPos = this.calculateYPos(yPos, 0);
 					yPos = Math.round(yPos + ((0 - this.options.elYpos) * this.options.parallaxOptions.effect));
 				}
 			}
@@ -238,13 +303,16 @@ Note: requires Modernizr (https://modernizr.com/)
 			// Check for 3dtransforms
 			if(Modernizr.csstransforms3d && this.options.useTrans3D ) {
 				this.options.$bkgdTrans.css(this.options.tfrmCSS, 'translate3d('+ xPos +'px, ' + yPos + 'px, 0)');
-				//this.options.$bkgd.css('transform', 'translate3d('+ xPos +'px, ' + yPos + 'px, 0)');
 			} else {
 				this.options.$bkgdTrans.css(this.options.tfrmCSS, 'translate('+ xPos +'px, ' + yPos + 'px)');
-				//this.options.$bkgd.css('transform', 'translate('+ xPos +'px, ' + yPos + 'px)');
 			}
 		},
 
+		/*!
+		@function calculateYPos
+		@abstract
+		    Calculate vertical position for paralax effect.
+		*/
 		calculateYPos: function (yPos, scrollPos)
 		{
 			var itemPosition, itemOffset;
@@ -252,11 +320,15 @@ Note: requires Modernizr (https://modernizr.com/)
 			itemPosition = parseInt(this.options.$bkgdWrap.offset().top);
 			itemOffset = itemPosition - scrollPos;
 			if (this.options.debug) console.log('Scroll:' + scrollPos + ' Offset:' + itemOffset + ' yPos:' + yPos);
-			//yPos = (itemOffset / this.options.parallaxOptions.effect) + yPos;
 
 			return yPos;
 		},
 
+		/*!
+		@function toggleVideo
+		@abstract
+		    Toggle video playback visibility and state.
+		*/
 		toggleVideo: function ()
 		{
 			var self = this;
@@ -281,6 +353,11 @@ Note: requires Modernizr (https://modernizr.com/)
 			}
 		},
 
+		/*!
+		@function playPauseVideo
+		@abstract
+		    Play or pause the video based on the viewport position.
+		*/
 		playPauseVideo: function ()
 		{
 			var self = this;
@@ -295,11 +372,23 @@ Note: requires Modernizr (https://modernizr.com/)
 			});
 		},
 
+		/*!
+		@function disableParallax
+		@abstract
+		    Disable the parallax effect.
+		*/
 		disableParallax: function ()
 		{
 			this.options.$window.unbind('.trakgroundParallax');
 		},
 
+		/*!
+		@function setBkgdProperties
+		@abstract
+		    Configure background properties for video or fallback image.
+		@param useVideo (boolean)
+		    Whether to use a video as the background.
+		*/
 		setBkgdProperties: function(useVideo)
 		{
 			this.$element.append("<div id='" + this.options.wrapID + "'></div>\n");
@@ -352,6 +441,11 @@ Note: requires Modernizr (https://modernizr.com/)
 			$('.vb-fallback-image').css({'display' : 'none'});
 		},
 
+		/*!
+		@function shimRAF
+		@abstract
+		    Shim for requestAnimationFrame and cancelAnimationFrame.
+		*/
 		shimRAF: function()
 		{
 			var vendors = ['webkit', 'moz'];
@@ -374,6 +468,13 @@ Note: requires Modernizr (https://modernizr.com/)
 			}
 		},
 
+		/*!
+		@function prefixIt
+		@abstract
+		    Add vendor prefixes to CSS properties if necessary.
+		@param property (string)
+		    The CSS property to prefix.
+		*/
 		prefixIt: function(property)
 		{
 			function up(p, a)

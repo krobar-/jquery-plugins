@@ -1,11 +1,33 @@
-
-// Utility functions
+/*!
+@namespace fnUtil
+@abstract
+    Utility functions for string manipulation.
+*/
 var fnUtil = fnUtil || {};
+
+/*!
+@function fnUtil.lowerCase
+@abstract
+    Convert a string to lowercase.
+@param c (string)
+    The input string.
+@return (string)
+    The lowercase version of the input string.
+*/
 fnUtil.lowerCase = function(c)
 {
 	return (c || '').toLowerCase();
 };
 
+/*!
+@function fnUtil.toDashed
+@abstract
+    Convert a camelCase string to dashed-case.
+@param str (string)
+    The camelCase string.
+@return (string)
+    The dashed-case string.
+*/
 fnUtil.toDashed = function( str ) {
   return str.replace( /(.)([A-Z])/g, function( match, $1, $2 ) {
     return $1 + '-' + $2;
@@ -15,16 +37,15 @@ fnUtil.toDashed = function( str ) {
 (function($) {
 
 	/*!
-		@class EasyAnimate
-		@abstract
-			The primary class for the EasyAnimate plugin.
-		@discussion
-			Base class for jQuery.easyanimation. 
-			A plugin for adding dynamic animations to web elements, including counting, text scrambling, and fade effects.
-		@var element (object)
-			Dom element for plugin 
-		@var options (array)
-			Plugin Option Defaults.
+	@class EasyAnimate
+	@abstract
+	    The main class for the EasyAnimate plugin.
+	@discussion
+	    Provides methods for animating elements dynamically, including count, scramble, and fade animations.
+	@param element (object)
+	    The DOM element to apply the animation.
+	@param options (object)
+	    Configuration options for the animation.
 	*/
 
 	var EasyAnimate = function(element, options)
@@ -49,10 +70,32 @@ fnUtil.toDashed = function( str ) {
 	};
 
 	/*!
-		@var EasyAnimate.defaultOptions (object)
-		@abstract
-			Default settings for the plugin.
+	@var EasyAnimate.defaultOptions (object)
+	@abstract
+	    Default configuration for the EasyAnimate plugin.
+	@textblock
+	    animation: 'count'        = The type of animation ('count', 'scramble', etc.).
+	    finish: true              = Determine the endpoint for the animation.
+	    easing: 'swing'           = Easing function for animations.
+	    duration: 400             = Duration of the animation in milliseconds.
+	    delay: 0                  = Delay before the animation starts.
+	    complete: ''              = Callback function to execute on animation completion.
+	    inView: true              = Only animate elements when in the viewport.
+	    offset: '50'              = Offset percentage for triggering animations.
+	    autoSelector: '*[data-animate]' = Auto-detect elements for animation.
+	    fade: 2000                = Duration for fade effects in milliseconds.
+	    $element: null            = The target jQuery element.
+	    animated: false           = Internal flag indicating if the animation has been executed.
+	    inTimeOut: false          = Timeout handler for delayed animations.
+	    start: 0                  = Starting number for count animations.
+	    direction: 'up'           = Direction for count animations ('up' or 'down').
+	    delimiter: ','            = Delimiter for count animations.
+	    noComma: true             = Disable commas in count animations.
+	    stepsPerGlyph: 10         = Steps per glyph for scramble animations.
+	    codeGlyphs: "ABC...xyz"   = Glyphs for scramble animations.
+	@/textblock
 	*/
+
 	EasyAnimate.defaultOptions = {
 		// global options
 		animation: 'count', 
@@ -85,6 +128,13 @@ fnUtil.toDashed = function( str ) {
 
 	EasyAnimate.prototype = {
 
+		/*!
+		@function EasyAnimate.prototype.init
+		@abstract
+		    Initialize the EasyAnimate plugin.
+		@discussion
+		    Sets up event listeners and triggers the animation check.
+		*/
 		init: function()
 		{
 			var self = this;
@@ -98,6 +148,13 @@ fnUtil.toDashed = function( str ) {
 			update();
 		},
 
+		/*!
+		@function EasyAnimate.prototype.animate
+		@abstract
+		    Perform the animation based on the configuration options.
+		@discussion
+		    Supports 'count' and 'scramble' animations with fade effects.
+		*/
 		animate: function()
 		{
 			var self = this;
@@ -146,6 +203,11 @@ fnUtil.toDashed = function( str ) {
 			}
 		},
 
+		/*!
+		@function EasyAnimate.prototype.check
+		@abstract
+		    Check if the animation should be triggered based on viewport visibility.
+		*/
 		check: function()
 		{
 			var self = this,
@@ -177,6 +239,17 @@ fnUtil.toDashed = function( str ) {
 			}
 		},
 
+		/*!
+		@function EasyAnimate.prototype.randomString
+		@abstract
+		    Generate a random string from a given character set.
+		@param set (string)
+		    The character set to choose from.
+		@param length (number)
+		    The length of the generated string.
+		@return (string)
+		    The randomly generated string.
+		*/
 		randomString: function(set, length)
 		{
 			// get a random string from the given set,
@@ -193,6 +266,13 @@ fnUtil.toDashed = function( str ) {
 
 	var oldEasyAnimate = $.fn.easyanimate;
 
+	/*!
+	@function $.fn.easyanimate
+	@abstract
+	    jQuery plugin initialization for EasyAnimate.
+	@param option (object|string)
+	    Options or method name to invoke on the plugin instance.
+	*/
 	$.fn.easyanimate = function(option)
 	{
 		return this.each(function()
@@ -222,6 +302,13 @@ fnUtil.toDashed = function( str ) {
 	// indicate to jQuery the constructor for the plugin
 	$.fn.easyanimate.Constructor = EasyAnimate;
 
+	/*!
+	@function $.fn.easyanimate.noConflict
+	@abstract
+	    Restore the previous jQuery plugin with the same name.
+	@return (function)
+	    The restored plugin.
+	*/
 	$.fn.easyanimate.noConflict = function()
 	{
 		$.fn.easyanimate = oldEasyAnimate;
